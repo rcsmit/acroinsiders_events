@@ -13,6 +13,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Corben:wght@400;700&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
+<script>
+  function sendHeight() {
+    const height = document.documentElement.scrollHeight;
+    window.parent.postMessage({ type: 'iframeHeight', height: height }, '*');
+  }
+
+  // Fire on load
+  window.addEventListener('load', sendHeight);
+
+  // Fire if content changes dynamically
+  const observer = new MutationObserver(sendHeight);
+  observer.observe(document.documentElement, { subtree: true, childList: true, attributes: true });
+
+  // Optional: fire on window resize too
+  window.addEventListener('resize', sendHeight);
+</script>
 <body>
 
 <!-- LOADING OVERLAY -->
