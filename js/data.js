@@ -238,6 +238,8 @@ function redraw() {
   if (currentView === 'map')  redrawMap();
   if (currentView === 'list') { listPage = 1; renderList(); }
   if (currentView === 'cal')  renderCalendar();
+  if (window.parentIFrame) window.parentIFrame.size(); // resize after every filter change
+
 }
 
 /* ── Fetch & init ────────────────────────────────────────── */
@@ -279,4 +281,6 @@ async function init() {
   if (!rawData || !rawData.length) { setMsg('No data found. '); return; }
   processData(rawData);
   hideOv();
+  if (window.parentIFrame) window.parentIFrame.size(); // tell WordPress to resize the iframe
+  console.log("15:22")
 }
