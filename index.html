@@ -20,7 +20,12 @@
   }
 
   // Fire on load
-  window.addEventListener('load', sendHeight);
+  window.addEventListener('load', () => {
+      sendHeight();
+      setTimeout(sendHeight,500); //cathc late renders
+      setTimeout(sendHeight,21500); //catch slow fetches
+  });
+
 
   // Fire if content changes dynamically
   const observer = new MutationObserver(sendHeight);
