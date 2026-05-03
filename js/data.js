@@ -242,21 +242,41 @@ function redraw() {
 
 /* ── Fetch & init ────────────────────────────────────────── */
 
+// async function init() {
+//   setMsg('Fetching event data…');
+//   const csvURL = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID_ENC}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_TAB_ENC)}`;
+//   let rawCSV;
+//   try {
+//     const res = await fetch(csvURL);
+//     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+//     rawCSV = await res.text();
+//   } catch (e) {
+//     setMsg('❌ Could not load data: ' + e.message);
+//     setStep('Check the sheet is shared as "Anyone can view"');
+//     return;
+//   }
+//   const data = parseCSV(rawCSV);
+//   if (!data.length) { setMsg('No data found. Check SHEET_TAB_ENC in config.js.'); return; }
+//   processData(data);
+//   hideOv();
+// }
+
 async function init() {
   setMsg('Fetching event data…');
-  const csvURL = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID_ENC}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_TAB_ENC)}`;
-  let rawCSV;
+  const workerURL = 'https://tiny-recipe-c86a.be-nomadicated.workers.dev/events';
+  let rawData;
   try {
-    const res = await fetch(csvURL);
+    const res = await fetch(workerURL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    rawCSV = await res.text();
+    const json = await res.json();
+    rawData = json.rows;
   } catch (e) {
     setMsg('❌ Could not load data: ' + e.message);
-    setStep('Check the sheet is shared as "Anyone can view"');
+    setStep('Check the worker URL in index.html');
     return;
   }
-  const data = parseCSV(rawCSV);
-  if (!data.length) { setMsg('No data found. Check SHEET_TAB_ENC in config.js.'); return; }
-  processData(data);
+  
+  if (!rawData || !rawData.length) { setMsg('No data found. '); return; }
+  processData(rawData);
   hideOv();
 }
