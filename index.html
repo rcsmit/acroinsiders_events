@@ -16,6 +16,7 @@
 <script>
   function sendHeight() {
     const height = document.documentElement.scrollHeight;
+    console.log(height)
     window.parent.postMessage({ type: 'iframeHeight', height: height }, '*');
   }
 
