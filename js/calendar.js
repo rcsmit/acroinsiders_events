@@ -6,6 +6,27 @@ const CAL_DAYS   = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const CAL_MONTHS = ['January','February','March','April','May','June',
                     'July','August','September','October','November','December'];
 
+/**
+ * Build a Map from row → colour index by walking visibleRows() in order.
+ * Each event gets the next colour in CONFIG.COLORS (cycles after 30).
+ * Shortlisted events always use CONFIG.SL_COLOR.
+ * Called once per renderCalendar() so the colour is stable within a render.
+ */
+function buildCalColorMap() {
+  const SL = new Set(['yes', '1', 'true', 'x', '✓']);
+  const map = new Map();
+  let i = 0;
+  visibleRows().forEach(row => {
+    const sl = SL.has(String(row[CONFIG.COL_SHORTLIST] || '').trim().toLowerCase());
+    map.set(row, sl ? CONFIG.SL_COLOR : CONFIG.COLORS[i++ % CONFIG.COLORS.length]);
+  });
+  return map;
+}
+
+function calEventColor(row, colorMap) {
+  return colorMap.get(row) || CONFIG.COLORS[0];
+}
+
 /** Navigate to the previous month. */
 function calPrev()    { calMonth--; if (calMonth < 0)  { calMonth = 11; calYear--; } renderCalendar(); }
 /** Navigate to the next month. */
@@ -19,6 +40,9 @@ function renderCalendar() {
 
   const grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
+
+  // Build colour map once — one colour per visible event, walking CONFIG.COLORS in order.
+  const colorMap = buildCalColorMap();
 
   // Day-of-week headers
   CAL_DAYS.forEach(d => {
@@ -85,9 +109,7 @@ function renderCalendar() {
 
     const dayEvents = evMap[key] || [];
     dayEvents.slice(0, 3).forEach(row => {
-      const c   = lColors[row._layer] || '#f19072';
-      const sl  = ['yes', '1', 'true', 'x', '✓'].includes(String(row[CONFIG.COL_SHORTLIST] || '').toLowerCase());
-      const col = sl ? CONFIG.SL_COLOR : c;
+      const col = calEventColor(row, colorMap);
       const dot = document.createElement('span');
       dot.className      = 'cal-ev-dot';
       dot.style.background  = col + '22';
@@ -126,11 +148,12 @@ function renderCalendar() {
 
 /** Open the floating popup showing all events for a given day. */
 function showCalPopupMulti(dayEvents, day, e) {
+  const colorMap = buildCalColorMap();
   const popup = document.getElementById('cal-popup');
   let html = `<div style="padding:10px 14px 6px;font-family:var(--font-heading);font-size:.9rem;font-weight:700;color:var(--p3);border-bottom:1px solid var(--p6);margin-bottom:6px">${day} ${CAL_MONTHS[calMonth]}</div>`;
 
   dayEvents.forEach(row => {
-    const c  = lColors[row._layer] || '#f19072';
+    const c  = calEventColor(row, colorMap);
     const n  = (row[CONFIG.COL_NAME] || '').trim() || '(unnamed)';
     const dr = fmtDateRange(row);
     const idx = rows.indexOf(row);

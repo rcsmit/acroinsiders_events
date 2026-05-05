@@ -21,7 +21,7 @@ function toast(msg, ms = 4000) {
 
 /** Return the emoji icon for a given event category. */
 function etIcon(t) {
-  return { Festival: '🎪', Retreat: '🏕️', Intensive: '🔥', Event: '📍', 'Teacher Training': '🎓' }[t] || '';
+  return { Festival: '🎪', Retreat: '🏕️', Intensive: '🔥', Event: '📍', Training: '🎓' }[t] || '';
 }
 
 /**
