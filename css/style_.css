@@ -111,6 +111,8 @@ a:hover { color: var(--p1); }
 .fb-pills { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
 #et { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 #pill-deals-wrap { margin-left: 0; }
+/* Force the second fb-sep (before the pills) to act as a full-width line break */
+.fb-sep:last-of-type { flex-basis: 100%; height: 0; background: none; border: none; }
 
 /* Event type pills */
 .et {
