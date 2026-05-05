@@ -14,11 +14,16 @@ const CONFIG = {
   COL_REMARKS:   'EVENT DESCRIPTION',
   COL_CONTINENT: 'CONTINENT',
   COL_COUNTRY:   'COUNTRY',
+  
+  COL_CITY:  'CITY',
+  
   COL_PROVINCE:  'STATE',
   COL_SHORTLIST: 'STICKY IN MONTH VIEW',
   COL_START:     'EVENT START DATE',
   COL_END:       'EVENT END DATE',
   COL_CATEGORY:  'EVENT CATEGORY',
+  COL_INSIDER_DEALS:  'INSIDER DEAL',
+  COL_URL:  'URL',
 
   /* Map defaults */
   MAP_CENTER:   [20, 10],
@@ -61,6 +66,7 @@ let dateTo        = null;
 const hideEnded   = true;   // always hide past events
 let filterContinent = '';
 let filterCountry   = '';
+let filterDeals     = false;   // true = only show rows with Insider Deals
 let listPage      = 1;
 let calYear       = new Date().getFullYear();
 let calMonth      = new Date().getMonth();

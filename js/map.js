@@ -110,7 +110,37 @@ function redrawMap() {
   if (!mapInitialized) return;
   cluster.clearLayers();
   labelLayer.clearLayers();
-  visibleRows().forEach(r => addMarker(r));
+
+  // Spread markers that share the same coordinates so they don't pile up.
+  // Group by rounded lat/lon key, then apply a tiny spiral offset per duplicate.
+  const coordCount = {};
+  const JITTER = 0.018; // degrees — ~2 km at equator, barely visible at low zoom
+
+  visibleRows().forEach(r => {
+    if (!isFinite(r._lat) || !isFinite(r._lon)) { addMarker(r); return; }
+
+    const key = `${r._lat.toFixed(3)},${r._lon.toFixed(3)}`;
+    if (!coordCount[key]) coordCount[key] = 0;
+    const n = coordCount[key]++;
+
+    if (n === 0) {
+      // First event at this location — no offset needed.
+      addMarker(r);
+    } else {
+      // Spiral: evenly distribute duplicates in a circle around the original.
+      // Each subsequent event is offset at radius JITTER, angle spread evenly.
+      const angle  = (n - 1) * (2 * Math.PI / 8); // up to 8 per ring
+      const radius = JITTER * Math.ceil(n / 8);    // outer ring after 8
+      const jLat   = r._lat + radius * Math.cos(angle);
+      const jLon   = r._lon + radius * Math.sin(angle);
+      // Temporarily patch lat/lon, call addMarker, then restore.
+      const origLat = r._lat, origLon = r._lon;
+      r._lat = jLat; r._lon = jLon;
+      addMarker(r);
+      r._lat = origLat; r._lon = origLon;
+    }
+  });
+
   syncLabels();
 }
 
@@ -133,14 +163,16 @@ window.addEventListener('resize', () => {
  */
 function mkMapPopupHtml(row) {
   const n   = (row[CONFIG.COL_NAME]      || '').trim() || '(unnamed)';
+  const cty = (row[CONFIG.COL_CITY]      || '').trim();
   const ctr = (row[CONFIG.COL_COUNTRY]   || '').trim();
   const prv = (row[CONFIG.COL_PROVINCE]  || '').trim();
   const cnt = (row[CONFIG.COL_CONTINENT] || '').trim();
   const cat = (row[CONFIG.COL_CATEGORY]  || '').trim();
   const sl  = ['yes', '1', 'true', 'x', '✓'].includes(String(row[CONFIG.COL_SHORTLIST] || '').toLowerCase());
-  const loc = [prv, ctr, cnt].filter(Boolean).join(', ');
+  const loc = [cty, prv, ctr, cnt].filter(Boolean).join(', ');
   const dr  = fmtDateRange(row);
   const c   = lColors[row._layer] || '#f19072';
+  const url = (row[CONFIG.COL_URL] || '').trim();
   const idx = rows.indexOf(row);
 
   return `<div class="mpb">
@@ -153,6 +185,7 @@ function mkMapPopupHtml(row) {
     ${dr  ? `<div class="mpb-date">📅 ${escHtml(dr)}</div>`  : ''}
     ${sl  ? `<div class="mpb-sl">⭐ Shortlisted</div>`        : ''}
     <span class="mpb-more" onclick="openEventFromMap(${idx})">View details →</span>
+    ${url ? `<a class="mpb-url" href="${escHtml(url)}" target="_blank" rel="noopener noreferrer">🔗 Website →</a>` : ''}
   </div>`;
 }
 

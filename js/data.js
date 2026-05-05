@@ -41,6 +41,7 @@ function visible(row) {
     if (fd && red && red < fd) return false;
     if (td && rsd && rsd > td) return false;
   }
+  if (filterDeals && !(row[CONFIG.COL_INSIDER_DEALS] || '').trim()) return false;
   return true;
 }
 
@@ -178,14 +179,17 @@ function clearAllFilters() {
   });
   actET = new Set();
   document.querySelectorAll('.et').forEach(b => b.classList.remove('on'));
+  filterDeals = false;
+  const dealsPill = document.getElementById('pill-deals');
+  if (dealsPill) dealsPill.classList.remove('on');
   document.getElementById('q').value = ''; qStr = '';
   redraw();
 }
 
 /* ── Event type filter UI ────────────────────────────────── */
 
-const ET_ORDER   = ['Festival', 'Retreat', 'Intensive', 'Event', 'Teacher Training'];
-const ET_PREMIUM = new Set(['Teacher Training']);
+const ET_ORDER   = ['Festival', 'Retreat', 'Intensive', 'Event', 'Training'];
+const ET_PREMIUM = new Set([]);
 
 function buildEventTypes() {
   const wrap = document.getElementById('et');
@@ -209,9 +213,30 @@ function buildEventTypes() {
   });
 }
 
+/* ── Deals filter pill ───────────────────────────────────── */
+
+/**
+ * Build (or rebuild) the "🏷️ Has deals" toggle pill.
+ * Only renders if at least one visible row has deal content.
+ */
+function buildDealsFilter() {
+  const wrap = document.getElementById('pill-deals-wrap');
+  if (!wrap) return;
+  // Check if any non-ended row has deals at all (regardless of other filters).
+  const today = dateOnly(new Date());
+  const anyDeals = rows.some(row => {
+    const endDate = parseDate(row[CONFIG.COL_END]) || parseDate(row[CONFIG.COL_START]);
+    if (endDate && dateOnly(endDate) < today) return false;
+    return !!(row[CONFIG.COL_INSIDER_DEALS] || '').trim();
+  });
+  wrap.style.display = anyDeals ? '' : 'none';
+}
+
 /* ── Process raw CSV rows ────────────────────────────────── */
 
 function processData(data) {
+  // Debug: log all column keys from the first row so you can verify COL_INSIDER_DEALS matches.
+  if (data.length) console.log('[AcroMap] Column keys:', Object.keys(data[0]));
   const lSet = new Set();
   data.forEach(row => {
     row._layer = (row[CONFIG.COL_LAYER] || 'Other').trim() || 'Other';
@@ -225,6 +250,7 @@ function processData(data) {
   actL = new Set(layers);
   buildGeoFilters();
   buildEventTypes();
+  buildDealsFilter();
   document.getElementById('s-total').textContent = rowsForDropdowns().length;
   document.getElementById('s-vis').textContent   = rows.length;
   redraw();
@@ -238,49 +264,66 @@ function redraw() {
   if (currentView === 'map')  redrawMap();
   if (currentView === 'list') { listPage = 1; renderList(); }
   if (currentView === 'cal')  renderCalendar();
+  updateClearButton();
   if (window.parentIFrame) window.parentIFrame.size(); // resize after every filter change
+}
 
+/**
+ * Show the ✕ Clear button only when at least one filter is active.
+ * Compares against the "everything visible" default state.
+ */
+function updateClearButton() {
+  const btn = document.getElementById('btn-clear');
+  if (!btn) return;
+  const active =
+    !!qStr ||
+    !!filterContinent ||
+    !!filterCountry ||
+    !!dateFrom ||
+    !!dateTo ||
+    filterDeals ||
+    actET.size > 0;
+  btn.style.display = active ? '' : 'none';
 }
 
 /* ── Fetch & init ────────────────────────────────────────── */
 
-// async function init() {
-//   setMsg('Fetching event data…');
-//   const csvURL = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID_ENC}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_TAB_ENC)}`;
-//   let rawCSV;
-//   try {
-//     const res = await fetch(csvURL);
-//     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-//     rawCSV = await res.text();
-//   } catch (e) {
-//     setMsg('❌ Could not load data: ' + e.message);
-//     setStep('Check the sheet is shared as "Anyone can view"');
-//     return;
-//   }
-//   const data = parseCSV(rawCSV);
-//   if (!data.length) { setMsg('No data found. Check SHEET_TAB_ENC in config.js.'); return; }
-//   processData(data);
-//   hideOv();
-// }
-
 async function init() {
   setMsg('Fetching event data…');
-  const workerURL = 'https://tiny-recipe-c86a.be-nomadicated.workers.dev/events';
-  let rawData;
+
+  // ── Primary: Cloudflare Worker ───────────────────────────
   try {
-    const res = await fetch(workerURL);
+    const workerURL = 'https://tiny-recipe-c86a.be-nomadicated.workers.dev/events';
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(workerURL, { signal: controller.signal });
+    clearTimeout(tid);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    rawData = json.rows;
-  } catch (e) {
-    setMsg('❌ Could not load data: ' + e.message);
-    setStep('Check the worker URL in index.html');
+    const rawData = json.rows;
+    if (!rawData || !rawData.length) throw new Error('Empty response from worker');
+    processData(rawData);
+    hideOv();
+    if (window.parentIFrame) window.parentIFrame.size();
     return;
+  } catch (workerErr) {
+    console.warn('Worker fetch failed, falling back to Google Sheets CSV:', workerErr.message);
+    setStep('Retrying via Google Sheets…');
   }
-  
-  if (!rawData || !rawData.length) { setMsg('No data found. '); return; }
-  processData(rawData);
-  hideOv();
-  if (window.parentIFrame) window.parentIFrame.size(); // tell WordPress to resize the iframe
-  console.log("15:22")
+
+  // ── Fallback: Google Sheets CSV ──────────────────────────
+  try {
+    const csvURL = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID_ENC}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_TAB_ENC)}`;
+    const res = await fetch(csvURL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rawCSV = await res.text();
+    const data = parseCSV(rawCSV);
+    if (!data.length) throw new Error('No rows parsed from CSV');
+    processData(data);
+    hideOv();
+    if (window.parentIFrame) window.parentIFrame.size();
+  } catch (csvErr) {
+    setMsg('❌ Could not load data: ' + csvErr.message);
+    setStep('Check the sheet is shared as "Anyone can view"');
+  }
 }
