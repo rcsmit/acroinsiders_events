@@ -31,15 +31,11 @@
   <div class="header-inner">
     <!-- <div class="header-logo"><img src="logo.png" alt="logo"></div> -->
     <!-- <div class="site-logo-text">Acro<span>map</span></div> -->
-    <div class="header-stats">
-      <span><strong id="s-total">–</strong> total</span>
-      <span><strong id="s-vis">–</strong> visible</span>
+    <div class="hdr-search">
+      <span class="hdr-search-icon">🔍</span>
+      <input type="text" id="q" placeholder="Search name or location…" autocomplete="off">
     </div>
     <div class="header-right">
-      <div class="hdr-search">
-        <span class="hdr-search-icon">🔍</span>
-        <input type="text" id="q" placeholder="Search name or location…" autocomplete="off">
-      </div>
       <div class="view-toggle">
         <button class="vt-btn active" id="vt-list" onclick="setView('list')" title="List">
           ☰ <span class="vt-label">List</span>
@@ -51,6 +47,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:middle"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           <span class="vt-label">Map</span>
         </button>
+      </div>
+      <div class="header-stats">
+        <span><strong id="s-total">–</strong> total</span>
+        <span><strong id="s-vis">–</strong> visible</span>
       </div>
       <!-- <div class="hmenu-wrap" id="hmenu-wrap">
         <div class="hbg" id="hbg" onclick="toggleMenu()">
@@ -83,6 +83,7 @@
     <option value="">All countries</option>
   </select>
   <div class="fb-sep"></div>
+  <div class="fb-break"></div>
   <div class="fb-pills" id="et"></div>
   <div class="fb-pills" id="pill-deals-wrap" style="display:none">
     <span class="et" id="pill-deals" data-et="deals" title="Only show events with Insider Deals"

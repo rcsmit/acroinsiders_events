@@ -102,3 +102,13 @@ function parseCSV(csv) {
 function assignColors(layers) {
   layers.forEach((l, i) => { lColors[l] = CONFIG.COLORS[i % CONFIG.COLORS.length]; });
 }
+
+/**
+ * Generate a stable URL slug ID for a row — used for shareable event detail links.
+ * Format: event-name-slug-YYYY-MM-DD
+ */
+function rowID(row) {
+  const name  = (row[CONFIG.COL_NAME]  || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const start = (row[CONFIG.COL_START] || '').trim();
+  return encodeURIComponent(`${name}-${start}`);
+}

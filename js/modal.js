@@ -2,6 +2,27 @@
    MODALS  — event detail, info, credits
    ═══════════════════════════════════════════════════════════ */
 
+/* ── WhatsApp share ──────────────────────────────────────── */
+/**
+ * Open WhatsApp share cross-platform (iOS + Android + desktop).
+ * On iOS, whatsapp:// native scheme opens the app directly.
+ * Falls back to https://wa.me/ if the app is not installed.
+ */
+function shareWhatsApp(text) {
+  const encoded = encodeURIComponent(text);
+  const isIOS   = /iP(hone|ad|od)/.test(navigator.userAgent);
+  if (isIOS) {
+    const native = 'whatsapp://send?text=' + encoded;
+    const web    = 'https://wa.me/?text=' + encoded;
+    const start  = Date.now();
+    window.location.href = native;
+    setTimeout(() => { if (Date.now() - start < 1500) window.open(web, '_blank', 'noopener,noreferrer'); }, 1000);
+  } else {
+    window.open('https://wa.me/?text=' + encoded, '_blank', 'noopener,noreferrer');
+  }
+}
+
+
 /* ── iCal helpers ────────────────────────────────────────── */
 
 /**
@@ -181,10 +202,13 @@ function openEventModal(row) {
       ${url     ? `<a class="tribe-btn tribe-btn-primary" href="${escHtml(url)}" target="_blank" rel="noopener noreferrer">🔗 Visit website →</a>` : ''}
       ${hasDate ? `<a class="tribe-btn tribe-btn-outline tribe-btn-gcal" href="${escHtml(gcalURL)}" target="_blank" rel="noopener noreferrer">📅 Add to Google Calendar</a>` : ''}
       ${hasDate ? `<button class="tribe-btn tribe-btn-outline" onclick="window._downloadICS('${escHtml(icsName)}')">⬇ Download .ics</button>` : ''}
-      <a class="tribe-btn tribe-btn-whatsapp" href="${waURL}" target="_blank" rel="noopener noreferrer">💬 Share on WhatsApp</a>
+      <button class="tribe-btn tribe-btn-whatsapp" onclick="shareWhatsApp(window._waText)">💬 Share on WhatsApp</button>
       <button class="tribe-btn tribe-btn-outline" onclick="closeEventModal()">← Back</button>
     </div>
   `;
+
+  // WhatsApp text stored for the onclick button
+  window._waText = waLines.join('\n');
 
   // ICS download handler — uses closure over row data at the moment of open.
   window._downloadICS = function(filename) {
