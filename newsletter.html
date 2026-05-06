@@ -587,6 +587,13 @@ function copyHtml() {
 }
 
 init();
+
+  setTimeout(() => {
+  if (window.parentIFrame) window.parentIFrame.size();
+}, 1000);
+setTimeout(() => {
+  if (window.parentIFrame) window.parentIFrame.size();
+}, 3000);
 </script>
 </body>
 </html>
