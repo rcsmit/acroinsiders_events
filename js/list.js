@@ -8,24 +8,61 @@
  */
 const CAT_PICKS_STICKY = true;
 
+/**
+ * When set, clicking an event card navigates the parent WP page to
+ * this URL + ?id=SLUG instead of opening the modal.
+ * Set to '' to always use the modal (standalone / non-WP use).
+ */
+// const EVENTS_DETAIL_URL = 'https://www.acroinsiders.com/show-event/';
+const EVENTS_DETAIL_URL = '';
+
+/**
+ * Open an event — navigates parent WP page if EVENTS_DETAIL_URL is set,
+ * otherwise opens the modal (standalone mode).
+ */
+function openEventOrNavigate(row) {
+  openEventModal(row);
+
+  // if (EVENTS_DETAIL_URL) {
+  //   const target = EVENTS_DETAIL_URL + '?id=' + rowID(row);
+  //   if (window.parent && window.parent !== window) {
+  //     window.parent.location.href = target;   // inside WP iframe
+  //   } else {
+  //     window.location.href = target;           // standalone
+  //   }
+  // } else {
+  //   openEventModal(row);
+  // }
+}
+
 /** Minimum number of card rows to show per page. */
 const MIN_ROWS = 3;
+
+/** Minimum total cards per page (ensures enough content at any column count). */
+const MIN_PAGE_SIZE = 9;
 
 /** Card minimum width must match the CSS minmax() value on .lv-grid. */
 const CARD_MIN_WIDTH = 320;
 
 /**
  * Calculate how many cards fit per page based on the actual grid width.
- * Columns = floor(gridWidth / CARD_MIN_WIDTH), minimum 1.
- * Page size = columns × MIN_ROWS.
- * Falls back to CONFIG.PAGE_SIZE if the grid isn't in the DOM yet.
+ * Rules:
+ *  - Always a multiple of cols (complete rows, no orphan partial row)
+ *  - Always at least MIN_PAGE_SIZE (9) cards
+ *  - Rows = ceil(MIN_PAGE_SIZE / cols), so:
+ *      1 col → 9 rows → 9 cards
+ *      2 col → 5 rows → 10 cards
+ *      3 col → 3 rows → 9 cards
+ *      4 col → 3 rows → 12 cards
+ *      5 col → 3 rows → 15 cards  etc.
  */
 function calcPageSize() {
   const grid = document.getElementById('lv-grid');
   if (!grid) return CONFIG.PAGE_SIZE;
   const gridWidth = grid.parentElement.clientWidth || grid.clientWidth;
-  const cols = Math.max(1, Math.floor(gridWidth / CARD_MIN_WIDTH));
-  return cols * MIN_ROWS;
+  const cols      = Math.max(1, Math.floor(gridWidth / CARD_MIN_WIDTH));
+  const rows      = Math.max(MIN_ROWS, Math.ceil(MIN_PAGE_SIZE / cols));
+  return cols * rows;
 }
 
 // Rerender the list on resize so page size stays in sync with columns.
@@ -94,7 +131,7 @@ function renderCatPicks(vis) {
 }
 
 /** Open the event modal from a Cat's Picks card click. */
-function openEventFromCatPicks(idx) { openEventModal(rows[idx]); }
+function openEventFromCatPicks(idx) { openEventOrNavigate(rows[idx]); }
 
 /* ── Main list render ────────────────────────────────────── */
 
@@ -145,7 +182,7 @@ function renderList() {
         ${sl  ? `<div class="ev-card-sl">⭐ Shortlisted</div>`          : ''}
         ${rem ? `<div class="ev-card-desc">${escHtml(rem)}</div>`       : ''}
       `;
-      card.addEventListener('click', () => openEventModal(row));
+      card.addEventListener('click', () => openEventOrNavigate(row));
       grid.appendChild(card);
     });
   }

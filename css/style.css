@@ -23,13 +23,29 @@ a:hover { color: var(--p1); }
 .header-inner {
   max-width: var(--content-width); margin: 0 auto;
   padding: 0 1.5rem; display: flex; align-items: center;
-  justify-content: space-between; gap: 12px; height: 64px;
+  gap: 12px; height: 56px;
 }
 .site-logo-text { font-family: var(--font-heading); font-size: 1.6rem; color: var(--p3); font-weight: 700; white-space: nowrap; }
 .site-logo-text span { color: var(--p1); }
-.header-stats { display: flex; gap: 12px; font-size: 13px; color: var(--p5); }
-.header-stats strong { color: var(--p2); }
-.header-right { display: flex; align-items: center; gap: 10px; }
+
+/* Search grows to fill all available space */
+.hdr-search { position: relative; flex: 1 1 auto; }
+.hdr-search input {
+  background: var(--p8); border: 1px solid var(--p6); border-radius: 2px;
+  padding: 7px 12px 7px 32px; font-family: var(--font-body); font-size: 14px;
+  color: var(--p4); width: 100%; outline: none; transition: border-color .2s;
+}
+.hdr-search input:focus { border-color: var(--p2); }
+.hdr-search input::placeholder { color: var(--p5); }
+.hdr-search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--p5); font-size: 13px; pointer-events: none; }
+
+/* Right cluster: view toggle + stats, no gap filler needed */
+.header-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+
+/* Stats sit right next to the toggle */
+.header-stats { display: flex; gap: 10px; font-size: 12px; color: var(--p5); white-space: nowrap; }
+.header-stats strong { color: var(--p1); font-size: 13px; }
+.header-stats span::after { content: ''; }
 
 .header-logo {
   position: fixed;
@@ -43,16 +59,7 @@ a:hover { color: var(--p1); }
   width: auto;
   display: block;
 }
-/* Search */
-.hdr-search { position: relative; }
-.hdr-search input {
-  background: var(--p8); border: 1px solid var(--p6); border-radius: 2px;
-  padding: 5px 12px 5px 30px; font-family: var(--font-body); font-size: 14px;
-  color: var(--p4); width: 200px; outline: none; transition: border-color .2s;
-}
-.hdr-search input:focus { border-color: var(--p2); }
-.hdr-search input::placeholder { color: var(--p5); }
-.hdr-search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--p5); font-size: 13px; pointer-events: none; }
+/* Search styles merged into header block above */
 
 /* View toggle */
 .view-toggle { display: flex; gap: 2px; background: var(--p8); border: 1px solid var(--p6); border-radius: 2px; padding: 2px; }
@@ -108,6 +115,8 @@ a:hover { color: var(--p1); }
 }
 .fb-select:focus { border-color: var(--p2); }
 .fb-sep { width: 1px; height: 20px; background: var(--p6); flex-shrink: 0; }
+/* Force a new row in the filter bar before the event-type pills */
+.fb-break { flex-basis: 100%; height: 0; }
 .fb-pills { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
 #et { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 #pill-deals-wrap { margin-left: 0; }
@@ -231,7 +240,20 @@ a:hover { color: var(--p1); }
 .tribe-single-location-name { font-weight: 700; color: var(--p3); }
 .tribe-single-shortlisted { font-size: 14px; font-weight: 700; color: var(--p1); margin-bottom: .75rem; }
 
-/* Google Maps estimation link */
+/* Event status banners (past / ongoing) */
+.edwp-status {
+  border-radius: 4px; padding: 1rem 1.25rem; margin: .75rem 0 1.25rem;
+  font-family: var(--font-body); font-size: 15px; font-weight: 700;
+  line-height: 1.5; border-left: 5px solid;
+}
+.edwp-status-past {
+  background: #1a1a1a; color: #f5c542;
+  border-color: #f5c542;
+}
+.edwp-status-ongoing {
+  background: #0d3320; color: #4ade80;
+  border-color: #4ade80;
+}
 .tribe-gmaps-link {
   display: inline-flex; align-items: center; gap: .4rem;
   font-size: 13px; font-weight: 600; color: var(--p2);
@@ -418,28 +440,95 @@ a:hover { color: var(--p1); }
 .cp-card-loc  { font-size: 11px; color: var(--p5); }
 
 @media (max-width: 640px) {
-  .header-inner { height: 54px; padding: 0 1rem; }
-  .site-logo-text { font-size: 1.2rem; }
-  .header-stats { display: none; }
-  .hdr-search { display: none; }
-  .vt-btn span.vt-label { display: none; }
-  .filter-bar { gap: 5px; padding: 6px 1rem; flex-wrap: wrap; }
-  .fb-select { max-width: 110px; font-size: 12px; }
+
+  /* ── Header: column, every child stretches full width ──
+     Row 1: view toggle + stats (side by side, toggle grows)
+     Row 2: search bar (full width)
+  ──────────────────────────────────────────────────────── */
+  .header-inner {
+    height: auto;
+    padding: 8px 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  /* header-right = row 1: toggle (grows) + stats (right) */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  .view-toggle {
+    flex: 1;          /* toggle fills remaining space */
+    width: auto;
+    border-radius: 4px;
+    padding: 3px;
+  }
+  .vt-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 7px 4px;
+    font-size: 12px;
+    gap: 5px;
+    border-radius: 3px;
+  }
+  .vt-label { display: inline !important; }
+
+  /* Stats sit to the right of the toggle */
+  .header-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+    font-size: 11px;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+  .header-stats strong { color: var(--p1); font-size: 12px; }
+  .header-stats span { color: var(--p5); white-space: nowrap; }
+
+  /* hdr-search = row 2: full width */
+  .hdr-search {
+    display: flex !important;
+    width: 100%;
+    flex: none;
+  }
+  .hdr-search input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 14px;
+    padding: 8px 12px 8px 32px;
+  }
+
+  /* ── Filter bar ─────────────────────────────────────────── */
+  .filter-bar { gap: 6px; padding: 8px 1rem; flex-wrap: wrap; flex-direction: row; }
   .fb-sep { display: none; }
-  /* Pills: slightly smaller on mobile so they fit */
-  .et { font-size: 11px; padding: 5px 9px; min-height: 28px; }
-  .fb-clear { font-size: 11px; padding: 5px 9px; min-height: 28px; }
+  .fb-date-group { flex: 1 1 calc(50% - 4px); min-width: 0; }
+  .fb-date-group label { font-size: 11px; }
+  .fb-date-group input[type="date"] { font-size: 12px; padding: 4px 6px; flex: 1; min-width: 0; }
+  .fb-select { flex: 1 1 calc(50% - 4px); max-width: none; font-size: 12px; }
   .fb-pills { flex-wrap: wrap; }
+  .et { font-size: 11px; padding: 5px 10px; min-height: 28px; }
+  .fb-clear { font-size: 11px; padding: 5px 10px; min-height: 28px; margin-left: auto; }
+
+  /* ── List ───────────────────────────────────────────────── */
   .lv-grid { grid-template-columns: 1fr; }
   .lv-inner { padding: 1rem; }
-  /* Cat's Picks: narrower cards on mobile */
   .cp-card { flex: 0 0 180px; }
   .cp-header, .cp-scroll { padding-left: 1rem; padding-right: 1rem; }
-  /* Pagination: hide page buttons, always keep the count */
+
+  /* ── Pagination ─────────────────────────────────────────── */
   .pg-btn, .pg-ellipsis { display: none; }
-  .pg-info-always { display: inline !important; }
+  .pg-info-always { display: inline-flex !important; }
+
+  /* ── Calendar ───────────────────────────────────────────── */
   .cal-cell { min-height: 60px; padding: 3px 4px; }
   .cal-dow { font-size: 10px; }
+
+  /* ── Modals ─────────────────────────────────────────────── */
   .tribe-modal-body { padding: 1.25rem; }
   .tribe-single-title { font-size: 1.4rem; }
   .leaflet-popup-content { width: calc(100vw - 56px) !important; max-width: 280px !important; }

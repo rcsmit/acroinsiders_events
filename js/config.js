@@ -51,6 +51,7 @@ const CONFIG = {
   ],
   SL_COLOR:  '#f19072',   /* shortlisted event accent colour */
   PAGE_SIZE: 10,          /* list-view cards per page */
+  MIN_PAGE_SIZE: 10,
 };
 
 /* ═══════════════════════════════════════════════════════════
