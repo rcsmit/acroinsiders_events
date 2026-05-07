@@ -43,24 +43,23 @@ const MIN_PAGE_SIZE = 9;
 
 /** Card minimum width must match the CSS minmax() value on .lv-grid. */
 const CARD_MIN_WIDTH = 320;
+/** Gap between cards — must match the CSS gap value on .lv-grid. */
+const CARD_GAP = 16;
 
 /**
  * Calculate how many cards fit per page based on the actual grid width.
- * Rules:
- *  - Always a multiple of cols (complete rows, no orphan partial row)
- *  - Always at least MIN_PAGE_SIZE (9) cards
- *  - Rows = ceil(MIN_PAGE_SIZE / cols), so:
- *      1 col → 9 rows → 9 cards
- *      2 col → 5 rows → 10 cards
- *      3 col → 3 rows → 9 cards
- *      4 col → 3 rows → 12 cards
- *      5 col → 3 rows → 15 cards  etc.
+ * Accounts for gaps between columns so the count matches CSS auto-fill exactly:
+ *   cols = floor((gridWidth + gap) / (minWidth + gap))
  */
 function calcPageSize() {
   const grid = document.getElementById('lv-grid');
   if (!grid) return CONFIG.PAGE_SIZE;
-  const gridWidth = grid.parentElement.clientWidth || grid.clientWidth;
-  const cols      = Math.max(1, Math.floor(gridWidth / CARD_MIN_WIDTH));
+  const inner     = grid.parentElement;
+  const style     = window.getComputedStyle(inner);
+  const padL      = parseFloat(style.paddingLeft)  || 0;
+  const padR      = parseFloat(style.paddingRight) || 0;
+  const gridWidth = (inner.clientWidth || grid.clientWidth) - padL - padR;
+  const cols      = Math.max(1, Math.floor((gridWidth + CARD_GAP) / (CARD_MIN_WIDTH + CARD_GAP)));
   const rows      = Math.max(MIN_ROWS, Math.ceil(MIN_PAGE_SIZE / cols));
   return cols * rows;
 }

@@ -30,7 +30,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 /* ── URL of the events listing page (Back button target) ─── */
-const EVENTS_PAGE_URL = 'https://www.acroinsiders.com/events/';
+const EVENTS_PAGE_URL = 'https://www.acroinsiders.com/see-the-events/';
 console.log("Eventdetail-wp.js loaded")
 /* ── Generate a stable slug ID for a row ─────────────────── */
 function rowID(row) {
@@ -93,8 +93,18 @@ function renderEventDetail(row) {
       </a>`
     : '';
 
-  /* WhatsApp share */
-  const waLines = [n, dr ? `Dates: ${dr}` : '', loc ? `Location: ${loc}` : '', url || ''].filter(Boolean);
+  /* WhatsApp share — deeplink replaces the event website URL */
+  const waDr  = dr ? dr : '';
+  const waCty2 = cty;
+  const waCtr2 = ctr;
+  const waDeepLink = typeof rowID === 'function' ? `https://acroinsiders.com/show-event/?id=${rowID(row)}` : (url || '');
+  const waLines = [
+    `Look at this event on acroinsiders.com!`,
+    n,
+    [waCty2, waDr].filter(Boolean).join(' '),
+    waCtr2 ? `at ${waCtr2}` : '',
+    waDeepLink,
+  ].filter(Boolean);
   const waURL   = `https://wa.me/?text=${encodeURIComponent(waLines.join('\n'))}`;
 
   /* Google Calendar */
@@ -122,6 +132,10 @@ function renderEventDetail(row) {
     : '';
 
   window._waTextDetail = waLines.join('\n');
+
+  /* Copy link */
+  const copyLinkURL = typeof rowID === 'function' ? `https://acroinsiders.com/show-event/?id=${rowID(row)}` : '';
+
   root.innerHTML = `
   <div class="tribe-modal-overlay" id="event-modal">
   <div class="tribe-modal">
@@ -148,6 +162,7 @@ function renderEventDetail(row) {
         ${hasDate ? `<a class="tribe-btn tribe-btn-outline tribe-btn-gcal" href="${escHtml(gcalURL)}" target="_blank" rel="noopener noreferrer">📅 Add to Google Calendar</a>` : ''}
         ${hasDate ? `<button class="tribe-btn tribe-btn-outline" onclick="window._downloadICS('${escHtml(icsName)}')">⬇ Download .ics</button>` : ''}
         <button class="tribe-btn tribe-btn-whatsapp" onclick="shareWhatsApp(window._waTextDetail)">💬 Share on WhatsApp</button>
+        ${copyLinkURL ? `<button class="tribe-btn tribe-btn-outline" onclick="copyEventLink('${escHtml(copyLinkURL)}')">🔗 Copy link</button>` : ''}
         <a href="${escHtml(EVENTS_PAGE_URL)}" class="tribe-btn tribe-btn-outline">← Back to all events</a>
       </div>
     </div>

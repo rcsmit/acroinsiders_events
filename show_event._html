@@ -2,28 +2,7 @@
 <html lang="en">
 <head>
 
-  <!-- TEST SCRIPT/PAGE FOR DEEPLINKS. THIS IS NOT USED IN A WORDPRESS SITE
-   
-* make a new page show-event, or whatever you want. just not event to avoid problems with the calender plugin 
-
-* enter this as html (choose code editor instead of visual editor)
-
-
-<div id="event-detail-root"></div>
-<link rel="stylesheet" href="https://rcsmit.github.io/acroinsiders_events/css/style.css">
-<style>
-#event-modal { opacity: 1; pointer-events: all; position: relative; inset: auto; background: none; padding: 2rem 1rem; }
-</style>
-<script src="https://rcsmit.github.io/acroinsiders_events/js/config.js"></script>
-<script src="https://rcsmit.github.io/acroinsiders_events/js/utils.js"></script>
-<script src="https://rcsmit.github.io/acroinsiders_events/js/modal.js"></script>
-<script src="https://rcsmit.github.io/acroinsiders_events/js/eventdetail-wp.js"></script>
-
-(the link to github is the real link ofcourse)
-
-link wil be www.acroinsiders.com/show-event/?id=sofia-intensive-2026-05-09
-
--->
+  <!-- TEST SCRIPT/PAGE FOR DEEPLINKS. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AcroInsiders - Events</title>
@@ -49,13 +28,22 @@ link wil be www.acroinsiders.com/show-event/?id=sofia-intensive-2026-05-09
 
 
 <div id="event-detail-root"></div>
+<link rel="stylesheet" href="https://acroinsiders.github.io/events/css/style.css">
 <style>
   html, body { height: auto; overflow-y: auto; }
   #event-modal { opacity: 1; pointer-events: all; position: relative; inset: auto; background: none; padding: 2rem 1rem; }
 </style>
+<script src="https://acroinsiders.github.io/events/js/config.js"></script>
+<script src="https://acroinsiders.github.io/events/js/utils.js"></script> 
+<script src="https://acroinsiders.github.io/events/js/modal.js"></script>
+<script src="https://acroinsiders.github.io/events/js/eventdetail-wp.js"></script>
+
+<!-- 
 <script src="js/config.js"></script>
 <script src="js/utils.js"></script>
+
 <script src="js/modal.js"></script>
-<script src="js/eventdetail-wp.js"></script>
+<script src="js/eventdetail-wp.js"></script> -->
+</script>
 </body>
 </html>
