@@ -50,11 +50,9 @@
 
 <script>
 /* ══════════════════════════════════════════════════════════
-   PREVIEW SETTINGS  ← change these to customise the embed
+   PREVIEW SETTINGS
    ══════════════════════════════════════════════════════════ */
-
-/** How many rows of cards to show per page. Change to 1,2, 3, 4 … */
-const PREVIEW_ROWS_PER_PAGE = 1;
+/* Events shown: 6 for 1-3 cols, 8 for 4 cols, 10 for 5+ cols */
 
 /* ══════════════════════════════════════════════════════════
    REQUIRED STUBS
@@ -138,17 +136,21 @@ function renderCalendar() {}
 /** Redraw just re-renders the list. */
 function redraw() { listPage = 1; renderList(); }
 
-/**
- * Override calcPageSize from list.js so PREVIEW_ROWS_PER_PAGE controls
- * the row count while column count is still derived from screen width.
- */
+/** How many events to show based on column count:
+ *  1-3 cols → 6 events, 4 cols → 8 events, 5+ cols → 10 events */
 const _origCalcPageSize = calcPageSize;
 function calcPageSize() {
   const grid = document.getElementById('lv-grid');
-  if (!grid) return PREVIEW_ROWS_PER_PAGE * 3;
-  const gridWidth = grid.parentElement.clientWidth || grid.clientWidth;
-  const cols = Math.max(1, Math.floor(gridWidth / CARD_MIN_WIDTH));
-  return cols * PREVIEW_ROWS_PER_PAGE;
+  if (!grid) return 6;
+  const inner     = grid.parentElement;
+  const style     = window.getComputedStyle(inner);
+  const padL      = parseFloat(style.paddingLeft)  || 0;
+  const padR      = parseFloat(style.paddingRight) || 0;
+  const gridWidth = (inner.clientWidth || grid.clientWidth) - padL - padR;
+  const cols = Math.max(1, Math.floor((gridWidth + CARD_GAP) / (CARD_MIN_WIDTH + CARD_GAP)));
+  if (cols <= 3) return 6;
+  if (cols === 4) return 8;
+  return 10;
 }
 
 /* Stub DOM ids that list.js writes to but don't exist in preview */

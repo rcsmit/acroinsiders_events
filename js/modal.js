@@ -2,6 +2,24 @@
    MODALS  — event detail, info, credits
    ═══════════════════════════════════════════════════════════ */
 
+/** Copy an event's shareable link to clipboard and show a toast. */
+function copyEventLink(url) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => toast('Link copied! 🔗')).catch(() => _copyFallback(url));
+  } else {
+    _copyFallback(url);
+  }
+}
+function _copyFallback(url) {
+  const ta = document.createElement('textarea');
+  ta.value = url;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); toast('Link copied! 🔗'); } catch(e) { toast('Copy failed — try manually'); }
+  document.body.removeChild(ta);
+}
+
 /* ── WhatsApp share ──────────────────────────────────────── */
 /**
  * Open WhatsApp share cross-platform (iOS + Android + desktop).
@@ -158,12 +176,16 @@ function openEventModal(row) {
         .join('')
     : '';
 
-  // WhatsApp share text — plain ASCII separators, no HTML entities.
+  // WhatsApp share text — "Look at this event on acroinsiders.com! NAME CITY STARTDATE-ENDDATE at COUNTRY DEEPLINK"
+  const waCty = (row[CONFIG.COL_CITY]    || '').trim();
+  const waCtr = (row[CONFIG.COL_COUNTRY] || '').trim();
+  const waDeepLink = (typeof rowID === 'function') ? `https://acroinsiders.com/show-event/?id=${rowID(row)}` : (url || '');
   const waLines = [
+    `Look at this event on acroinsiders.com!`,
     n,
-    dr  ? `Dates: ${dr}`    : '',
-    loc ? `Location: ${loc}` : '',
-    url || '',
+    [waCty, dr].filter(Boolean).join(' '),
+    waCtr ? `at ${waCtr}` : '',
+    waDeepLink,
   ].filter(Boolean);
   const waURL = `https://wa.me/?text=${encodeURIComponent(waLines.join('\n'))}`;
 
@@ -182,6 +204,10 @@ function openEventModal(row) {
         <div class="tribe-deals-text">${escHtml(deals).replace(/\n/g, '<br>')}</div>
       </div>`
     : '';
+
+  // Copy link — same deeplink as WhatsApp
+  const copyLinkSlug = (typeof rowID === 'function') ? rowID(row) : '';
+  const copyLinkURL  = copyLinkSlug ? `https://acroinsiders.com/show-event/?id=${copyLinkSlug}` : '';
 
   document.getElementById('event-modal-body').innerHTML = `
     <div class="tribe-single-cats">
@@ -203,6 +229,7 @@ function openEventModal(row) {
       ${hasDate ? `<a class="tribe-btn tribe-btn-outline tribe-btn-gcal" href="${escHtml(gcalURL)}" target="_blank" rel="noopener noreferrer">📅 Add to Google Calendar</a>` : ''}
       ${hasDate ? `<button class="tribe-btn tribe-btn-outline" onclick="window._downloadICS('${escHtml(icsName)}')">⬇ Download .ics</button>` : ''}
       <button class="tribe-btn tribe-btn-whatsapp" onclick="shareWhatsApp(window._waText)">💬 Share on WhatsApp</button>
+      ${copyLinkURL ? `<button class="tribe-btn tribe-btn-outline" onclick="copyEventLink('${escHtml(copyLinkURL)}')">🔗 Copy link</button>` : ''}
       <button class="tribe-btn tribe-btn-outline" onclick="closeEventModal()">← Back</button>
     </div>
   `;
