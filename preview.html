@@ -114,8 +114,9 @@ function renderList() {
       ${loc ? `<div class="ev-card-loc">📍 ${escHtml(loc)}</div>` : ''}
       ${dr  ? `<div class="ev-card-date">📅 ${escHtml(dr)}</div>` : ''}
       ${sl  ? `<div class="ev-card-sl">⭐ Shortlisted</div>`       : ''}
-      ${rem ? `<div class="ev-card-desc">${escHtml(rem)}</div>`    : ''}
+      
     `;
+    // ${rem ? `<div class="ev-card-desc">${escHtml(rem)}</div>`    : ''}
     card.addEventListener('click', () => openEventModal(row));
     grid.appendChild(card);
   });

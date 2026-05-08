@@ -341,11 +341,15 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+
+
+
 function makeEventUrl(row) {
   const w = (row[CONFIG.COL_URL]||'').trim();
   if (w) return w;
-  const slug = (row[CONFIG.COL_NAME]||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  return `https://acroinsiders.com/event/${slug}/`;
+  const name = (row[CONFIG.COL_NAME]||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-') //.replace(/^-|-$/g,'');
+  const start = (row[CONFIG.COL_START] || '').trim().replace(/[^0-9]/g, '-');
+  return `https://acroinsiders.com/show-event/?id=${name}-${start}`;
 }
 
 function rowKey(row, dim) {
@@ -498,13 +502,17 @@ function buildRow(row) {
   const so  = ['yes','1','true','x','\u2713'].includes((row['SOLD OUT']||'').toLowerCase().trim());
   const href = makeEventUrl(row);
   const icons = `${ic}${sl?' ⭐':''}${hd?' 🎟️':''}${so?' 😿':''}`;
-  return `<li class="ev">
-    <div class="ev-date">${esc(dr)}</div>
-    <div class="ev-body">
-      <a class="ev-name" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(n)}</a>
-      ${loc?`<div class="ev-loc">${esc(loc)}</div>`:''}
-    </div>
-    <div class="ev-icons">${icons}</div>
+  // return `<li class="ev">
+  //   <div class="ev-date">${esc(dr)}</div>
+  //   <div class="ev-body">
+  //     <a class="ev-name" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(n)}</a>
+  //     ${loc?`<div class="ev-loc">${esc(loc)}</div>`:''}
+  //   </div>
+  //   <div class="ev-icons">${icons}</div>
+  // </li>`;
+  return `<li>
+    <b>${esc(dr)}</b>&nbsp;<a  href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(n)}</a>&nbsp;
+      ${loc?`${esc(loc)}`:''}      ${icons}
   </li>`;
 }
 
