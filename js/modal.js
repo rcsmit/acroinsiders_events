@@ -180,13 +180,25 @@ function openEventModal(row) {
   const waCty = (row[CONFIG.COL_CITY]    || '').trim();
   const waCtr = (row[CONFIG.COL_COUNTRY] || '').trim();
   const waDeepLink = (typeof rowID === 'function') ? `https://acroinsiders.com/show-event/?id=${rowID(row)}` : (url || '');
+  
   const waLines = [
     `Look at this event on acroinsiders.com!`,
-    n,
-    [waCty, dr].filter(Boolean).join(' '),
-    waCtr ? `at ${waCtr}` : '',
+    `${n},`,
+    dr ? `${dr},` : '',
+    waCty ? `at ${waCty}` : '',
+    waCtr ? `(${waCtr})` : '',
     waDeepLink,
   ].filter(Boolean);
+
+  // const waLines = [
+  //   `Look at this event on acroinsiders.com!`,
+  //   `${n},`,
+  //   `${[waDr].filter(Boolean).join(' ')},`,
+  //   waCty2 ? `at ${waCty2}` : '',
+  //   waCtr2 ? `(${waCtr2})` : '',
+  //   waDeepLink,
+  // ].filter(Boolean);
+  // keep this in linew with the waLines in eventdetail-wp.js
   const waURL = `https://wa.me/?text=${encodeURIComponent(waLines.join('\n'))}`;
 
   // Google Calendar URL (built once, stored for the onclick).

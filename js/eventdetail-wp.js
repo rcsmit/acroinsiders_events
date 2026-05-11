@@ -31,7 +31,6 @@
 
 /* ── URL of the events listing page (Back button target) ─── */
 const EVENTS_PAGE_URL = 'https://www.acroinsiders.com/see-the-events/';
-console.log("Eventdetail-wp.js loaded")
 /* ── Generate a stable slug ID for a row ─────────────────── */
 function rowID(row) {
   const name  = (row[CONFIG.COL_NAME]  || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -100,11 +99,13 @@ function renderEventDetail(row) {
   const waDeepLink = typeof rowID === 'function' ? `https://acroinsiders.com/show-event/?id=${rowID(row)}` : (url || '');
   const waLines = [
     `Look at this event on acroinsiders.com!`,
-    n,
-    [waCty2, waDr].filter(Boolean).join(' '),
-    waCtr2 ? `at ${waCtr2}` : '',
+    `${n},`,
+    `${[waDr].filter(Boolean).join(' ')},`,
+    waCty2 ? `at ${waCty2}` : '',
+    waCtr2 ? `(${waCtr2})` : '',
     waDeepLink,
   ].filter(Boolean);
+  // keep this in linew with the waLines in modal.js
   const waURL   = `https://wa.me/?text=${encodeURIComponent(waLines.join('\n'))}`;
 
   /* Google Calendar */
@@ -177,6 +178,10 @@ function renderNotFound(id) {
   const root = document.getElementById('event-detail-root');
   if (!root) return;
   root.innerHTML = `
+  <style>
+#event-modal { opacity: 1; pointer-events: all; position: relative; inset: auto; background: none; padding: 2rem 1rem; }
+body { overflow: auto !important; }
+</style>
     <div class="tribe-modal-body edwp-body">
       <div class="edwp-back">
         <a href="${escHtml(EVENTS_PAGE_URL)}" class="tribe-btn tribe-btn-outline">← All events</a>
@@ -304,4 +309,6 @@ async function loadAndRender(targetID) {
   } else {
     loadAndRender(targetID);
   }
+ 
+  
 })();

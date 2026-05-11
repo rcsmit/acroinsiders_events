@@ -513,10 +513,11 @@ a:hover { color: var(--p1); }
   .fb-date-group label { font-size: 11px; }
   .fb-date-group input[type="date"] { font-size: 12px; padding: 4px 6px; flex: 1; min-width: 0; width: auto; }
   .fb-select { flex: 1 1 calc(50% - 4px); max-width: none; font-size: 12px; }
-  .fb-pills { flex-wrap: wrap; flex: 1 1 100%; }
+  .fb-pills { flex-wrap: wrap; flex: 1 1 auto; }
+  #pill-deals-wrap { flex: 0 0 auto; }
   #et { flex-wrap: wrap; }
   .et { font-size: 11px; padding: 5px 10px; min-height: 28px; }
-  .fb-clear { font-size: 11px; padding: 5px 10px; min-height: 28px; margin-left: 0; }
+  .fb-clear { font-size: 11px; padding: 5px 10px; min-height: 28px; margin-left: 0; flex: 0 0 auto; }
 
   /* ── List ───────────────────────────────────────────────── */
   .lv-grid { grid-template-columns: 1fr; }
