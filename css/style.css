@@ -538,4 +538,12 @@ a:hover { color: var(--p1); }
   .tribe-modal-body { padding: 1.25rem; }
   .tribe-single-title { font-size: 1.4rem; }
   .leaflet-popup-content { width: calc(100vw - 56px) !important; max-width: 280px !important; }
+
+    /* ── Show on map link: mobile fix ───────────────────────── */
+  .tribe-gmaps-link {
+    display: flex;         /* block-level, full width */
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  .tribe-gmaps-warn { display: none; }   /* hidden on hover too — no space reserved */
 }
