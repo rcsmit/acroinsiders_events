@@ -30,7 +30,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 /* ── URL of the events listing page (Back button target) ─── */
-const EVENTS_PAGE_URL = 'https://www.acroinsiders.com/see-the-events/';
+const EVENTS_PAGE_URL = 'https://www.acroinsiders.com/events/';
 /* ── Generate a stable slug ID for a row ─────────────────── */
 function rowID(row) {
   const name  = (row[CONFIG.COL_NAME]  || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
