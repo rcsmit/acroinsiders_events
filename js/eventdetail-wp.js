@@ -160,10 +160,10 @@ function renderEventDetail(row) {
       ${descHtml ? `<div class="tribe-single-desc">${descHtml}</div>` : ''}
       <div class="tribe-single-actions">
         ${url     ? `<a class="tribe-btn tribe-btn-primary" href="${escHtml(url)}" target="_blank" rel="noopener noreferrer">🔗 Visit website →</a>` : ''}
-        ${hasDate ? `<a class="tribe-btn tribe-btn-outline tribe-btn-gcal" href="${escHtml(gcalURL)}" target="_blank" rel="noopener noreferrer">📅 Add to Google Calendar</a>` : ''}
-        ${hasDate ? `<button class="tribe-btn tribe-btn-outline" onclick="window._downloadICS('${escHtml(icsName)}')">⬇ Download .ics</button>` : ''}
         <button class="tribe-btn tribe-btn-whatsapp" onclick="shareWhatsApp(window._waTextDetail)">💬 Share on WhatsApp</button>
         ${copyLinkURL ? `<button class="tribe-btn tribe-btn-outline" onclick="copyEventLink('${escHtml(copyLinkURL)}')">🔗 Copy link</button>` : ''}
+        ${hasDate ? `<a class="tribe-btn tribe-btn-outline " href="${escHtml(gcalURL)}" target="_blank" rel="noopener noreferrer">📅 Add to Google Calendar</a>` : ''}
+        ${hasDate ? `<button class="tribe-btn tribe-btn-outline" onclick="window._downloadICS('${escHtml(icsName)}')">⬇ Download .ics</button>` : ''}
         <a href="${escHtml(EVENTS_PAGE_URL)}" class="tribe-btn tribe-btn-outline">← Back to all events</a>
       </div>
     </div>

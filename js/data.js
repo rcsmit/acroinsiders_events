@@ -28,7 +28,7 @@ function visible(row) {
   if (filterContinent && (row[CONFIG.COL_CONTINENT] || '').trim() !== filterContinent) return false;
   if (filterCountry   && (row[CONFIG.COL_COUNTRY]   || '').trim() !== filterCountry)   return false;
   if (qStr) {
-    const haystack = [CONFIG.COL_NAME, CONFIG.COL_COUNTRY, CONFIG.COL_PROVINCE, CONFIG.COL_CONTINENT]
+    const haystack = [CONFIG.COL_NAME, , CONFIG.COL_CITY, CONFIG.COL_REMARKS, CONFIG.COL_COUNTRY, CONFIG.COL_PROVINCE, CONFIG.COL_CONTINENT]
       .map(k => (row[k] || '').toLowerCase()).join(' ');
     if (!haystack.includes(qStr.toLowerCase())) return false;
   }

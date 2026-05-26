@@ -111,6 +111,25 @@ function redrawMap() {
   cluster.clearLayers();
   labelLayer.clearLayers();
 
+  // Empty-state overlay
+  let noResults = document.getElementById('map-no-results');
+  if (!noResults) {
+    noResults = document.createElement('div');
+    noResults.id = 'map-no-results';
+    noResults.className = 'no-results map-no-results';
+    noResults.innerHTML = `<div class="map-no-results-text">
+      <div class="nr-icon">🤸</div>
+      <h3>No events found</h3>
+      <p>No upcoming events match your current filters.<br>Try a different event type, continent, or wider date range.</p>
+    </div>`;
+    document.getElementById('map').appendChild(noResults);
+  }
+  const vis = visibleRows();
+  noResults.style.display = vis.length ? 'none' : 'flex';
+
+  if (!vis.length) return;
+
+  
   // Spread markers that share the same coordinates so they don't pile up.
   // Group by rounded lat/lon key, then apply a tiny spiral offset per duplicate.
   const coordCount = {};
