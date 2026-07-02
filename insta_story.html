@@ -180,7 +180,7 @@
           <button class="ftog" data-filter="cont" data-val="Oceania"       onclick="toggleFilter(this)"><span class="ftog-dot" style="background:#E74C3C"></span>Oceania</button>
         </div>
       </div>
-      <div class="filter-section">
+       <div class="filter-section">
         <div class="filter-label">Show up to</div>
         <select class="filter-select" id="filter-months" onchange="applyFilters()">
           <option value="1">This month</option>
@@ -189,6 +189,14 @@
           <option value="6" selected>6 months</option>
           <option value="12">12 months</option>
           <option value="0">All future</option>
+        </select>
+      </div>
+      <div class="filter-section">
+        <div class="filter-label">Flag style</div>
+        <select class="filter-select" id="filter-flag" onchange="applyFilters()">
+          <option value="emoji" selected>Emoji 🇫🇷</option>
+          <option value="img">Image</option>
+          <option value="none">None</option>
         </select>
       </div>
     </div>
@@ -563,8 +571,8 @@ const CAT_ORDER = ['Festival','Retreat','Intensive','Event','Training'];
    STATE
    ════════════════════════════════════════════════ */
 let ALL_ROWS = [];
-const filters = { cat: new Set(), cont: new Set(), months: 6 };
 
+const filters = { cat: new Set(), cont: new Set(), months: 6, flag: 'emoji' };
 /* ════════════════════════════════════════════════
    HELPERS
    ════════════════════════════════════════════════ */
@@ -676,6 +684,7 @@ function clearFilter(type) {
 
 function applyFilters() {
   filters.months = parseInt(document.getElementById('filter-months').value, 10);
+  filters.flag = document.getElementById('filter-flag').value;
   renderList(ALL_ROWS);
   populateSource();
 }
@@ -797,8 +806,10 @@ function buildRow(row) {
   const so  = ['yes','1','true','x','\u2713'].includes((row['SOLD OUT']||'').toLowerCase().trim());
   const href = makeEventUrl(row);
   const icons = `${ic}${sl?' ⭐':''}${hd?' 🎟️':''}${so?' 😿':''}`;
-const flagemoji = flagEmoji(ctr);
- const flagimg = flagImg(ctr);
+   let flag = '';
+  if (filters.flag === 'emoji') flag = flagEmoji(ctr);
+  else if (filters.flag === 'img') flag = flagImg(ctr);
+
   
   // return `<li class="ev">
   //   <div class="ev-date">${esc(dr)}</div>
@@ -809,7 +820,7 @@ const flagemoji = flagEmoji(ctr);
   //   <div class="ev-icons">${icons}</div>
   // </li>`;
 return `<li>
-   <a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${flagemoji?flagemoji+' ':''} ${flagimg?flagimg+' ':''}${esc(n.toUpperCase())}</a></b><br>
+   <a href="${esc(href)}" target="_blank" rel="noopener noreferrer"> ${flag?flag+' ':''}${esc(n.toUpperCase())}</a></b><br>
     📅 ${esc(dr)}<br>
      
       📍 ${loc?`${esc(loc)}`:''}    <br>  
@@ -817,6 +828,7 @@ return `<li>
       @${socials}<br>
   </li>`;
 }
+
 
 /* ════════════════════════════════════════════════
    CSV PARSER
