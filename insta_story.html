@@ -130,6 +130,15 @@
   .digest-footer a { color: var(--p2); text-decoration: none; }
   .digest-footer a:hover { color: var(--p1); }
 
+  /* Socials box (above generated HTML) */
+  .socials-box { max-width: 640px; margin: 2rem auto 0; background: var(--p9); border: 1px solid var(--p7); border-radius: 4px; padding: 1rem 1.2rem; }
+  .socials-box-title { font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--p5); margin-bottom: 8px; }
+  .soc-row { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 5px 0; border-bottom: 1px solid var(--p8); font-size: 12.5px; }
+  .soc-row:last-child { border-bottom: none; }
+  .soc-name { font-weight: 600; color: var(--p3); flex-shrink: 0; }
+  .soc-handles { color: var(--p2); text-align: right; word-break: break-word; }
+  .soc-empty { font-size: 12px; color: var(--p5); padding: .3rem 0; }
+
   @media (max-width: 500px) {
     .digest-body { padding: 0 1.1rem 1rem; }
     .digest-header, .filter-bar { padding-left: 1.1rem; padding-right: 1.1rem; }
@@ -165,6 +174,16 @@
           <button class="ftog" data-filter="cat" data-val="Intensive" onclick="toggleFilter(this)">🏋️ Intensive</button>
           <button class="ftog" data-filter="cat" data-val="Event"     onclick="toggleFilter(this)">💫 Event</button>
           <button class="ftog" data-filter="cat" data-val="Training"  onclick="toggleFilter(this)">🎓 Training</button>
+        </div>
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="filter-section">
+        <div class="filter-label">Start date between <button class="filter-clear" id="clear-date" onclick="clearDateFilter()">Clear</button></div>
+        <div class="filter-toggles" style="align-items:center;">
+          <input type="date" class="filter-select" id="filter-date-from" onchange="applyFilters()" style="padding:3px 10px;">
+          <span style="font-size:11px;color:var(--p5);">and</span>
+          <input type="date" class="filter-select" id="filter-date-to" onchange="applyFilters()" style="padding:3px 10px;">
         </div>
       </div>
     </div>
@@ -266,6 +285,12 @@
   </div>
 
 </div><!-- /digest -->
+
+<!-- Socials box -->
+<div class="socials-box" id="socials-box">
+  <div class="socials-box-title">Socials</div>
+  <div id="socials-body"></div>
+</div>
 
 <!-- HTML source viewer -->
 <div style="max-width:640px;margin:2rem auto 0;">
@@ -572,7 +597,7 @@ const CAT_ORDER = ['Festival','Retreat','Intensive','Event','Training'];
    ════════════════════════════════════════════════ */
 let ALL_ROWS = [];
 
-const filters = { cat: new Set(), cont: new Set(), months: 6, flag: 'emoji' };
+const filters = { cat: new Set(), cont: new Set(), months: 6, flag: 'emoji', dateFrom: null, dateTo: null };
 /* ════════════════════════════════════════════════
    HELPERS
    ════════════════════════════════════════════════ */
@@ -685,8 +710,30 @@ function clearFilter(type) {
 function applyFilters() {
   filters.months = parseInt(document.getElementById('filter-months').value, 10);
   filters.flag = document.getElementById('filter-flag').value;
+
+  const fromVal = document.getElementById('filter-date-from').value;
+  const toVal   = document.getElementById('filter-date-to').value;
+  filters.dateFrom = fromVal ? parseDate(fromVal) : null;
+  filters.dateTo   = toVal   ? parseDate(toVal)   : null;
+
+  const dateActive = !!(filters.dateFrom || filters.dateTo);
+  document.getElementById('clear-date').classList.toggle('visible', dateActive);
+  // Explicit date range overrides the "Show up to" window, so grey it out
+  const monthsSelect = document.getElementById('filter-months');
+  monthsSelect.disabled = dateActive;
+  monthsSelect.style.opacity = dateActive ? '0.45' : '1';
+
   renderList(ALL_ROWS);
   populateSource();
+}
+
+function clearDateFilter() {
+  document.getElementById('filter-date-from').value = '';
+  document.getElementById('filter-date-to').value = '';
+  filters.dateFrom = null;
+  filters.dateTo = null;
+  document.getElementById('clear-date').classList.remove('visible');
+  applyFilters();
 }
 
 /* ════════════════════════════════════════════════
@@ -699,11 +746,21 @@ function renderList(allRows) {
     ? new Date(9999,11,31)
     : new Date(now.getFullYear(), now.getMonth() + filters.months, 0);
 
+  // Explicit start-date range (inclusive) overrides the today/months window
+  const dateRangeActive = !!(filters.dateFrom || filters.dateTo);
+  const rangeFrom = filters.dateFrom || new Date(0);
+  const rangeTo   = filters.dateTo   || new Date(9999,11,31);
+
   // Filter
   const rows = allRows.filter(row => {
     const s = parseDate(row[CONFIG.COL_START]);
     const e = parseDate(row[CONFIG.COL_END]) || s;
-    if (!s || e < today || s > winEnd) return false;
+    if (!s) return false;
+    if (dateRangeActive) {
+      if (s < rangeFrom || s > rangeTo) return false;
+    } else {
+      if (e < today || s > winEnd) return false;
+    }
     if (filters.cat.size  > 0 && !filters.cat.has((row[CONFIG.COL_CATEGORY]||'').trim()))  return false;
     if (filters.cont.size > 0 && !filters.cont.has((row[CONFIG.COL_CONTINENT]||'').trim())) return false;
     return true;
@@ -712,6 +769,8 @@ function renderList(allRows) {
   // Update count
   document.getElementById('filter-count').textContent =
     rows.length ? `${rows.length} event${rows.length!==1?'s':''} shown` : '';
+
+  renderSocialsBox(rows);
 
   const el = document.getElementById('event-list');
   if (!rows.length) {
@@ -737,9 +796,9 @@ function renderList(allRows) {
 function buildGroupHtml(rows, levels, depth) {
   if (depth >= levels.length) {
     // Leaf: render rows as <ul><li>
-    let html = '<ul class="ev-list">';
+    let html = '<table class="ev-list">';
     rows.forEach(row => { html += buildRow(row); });
-    html += '</ul>';
+    html += '</table>';
     return html;
   }
 
@@ -789,6 +848,7 @@ function flagEmoji(country) {
   return code.toUpperCase().replace(/./g, ch =>
     String.fromCodePoint(127397 + ch.charCodeAt(0)));
 }
+
 function buildRow(row) {
   const n   = (row[CONFIG.COL_NAME]||'').trim().toUpperCase()||'(unnamed)';
   const cat = (row[CONFIG.COL_CATEGORY]||'').trim();
@@ -819,14 +879,51 @@ function buildRow(row) {
   //   </div>
   //   <div class="ev-icons">${icons}</div>
   // </li>`;
-return `<li>
+return `<li class="ev">
+    <div class="ev-body">
    <a href="${esc(href)}" target="_blank" rel="noopener noreferrer"> ${flag?flag+' ':''}${esc(n.toUpperCase())}</a></b><br>
     📅 ${esc(dr)}<br>
      
       📍 ${loc?`${esc(loc)}`:''}    <br>  
       ${icons} ${cat}<br>
-      @${socials}<br>
-  </li>`;
+      </div>
+    
+      </li>
+  `;
+}
+
+
+function buildRowSocials(row) {
+  const n       = (row[CONFIG.COL_NAME]||'').trim().toUpperCase() || '(unnamed)';
+  const socials = (row[CONFIG.COL_SOCIALS]||'').trim();
+  if (!socials) return '';
+  // return `<div class="soc-row">
+  //   <span class="soc-name">${esc(n)}</span>
+  //   <span class="soc-handles">@${esc(socials)}</span>
+  // </div>`;
+  return `<div class="soc-row">
+    <span class="soc-handles" title="${esc(n)}">@${esc(socials)}</span>
+  </div>`;
+}
+
+function renderSocialsBox(rows) {
+  const body = document.getElementById('socials-body');
+  if (!body) return;
+  const withSocials = rows.filter(row => (row[CONFIG.COL_SOCIALS]||'').trim());
+  if (!withSocials.length) {
+    body.innerHTML = '<div class="soc-empty">No socials for the currently shown events.</div>';
+    return;
+  }
+  body.innerHTML = withSocials.map(buildRowSocials).join('');
+}
+
+function buildRowMentions(row) {
+  const socials = (row[CONFIG.COL_SOCIALS]||'').trim();
+return `<tr><td>
+   
+      @${socials}</td>
+      </<tr>
+  `;
 }
 
 
