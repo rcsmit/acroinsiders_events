@@ -177,9 +177,11 @@ function fmtDate(row) {
   if (!s) return '';
   const day = d => d.getDate();
   const mon = d => MONTHS[d.getMonth()].slice(0,3);
-  if (!e || s.toDateString()===e.toDateString()) return `${mon(s)} ${day(s)}`;
-  if (s.getMonth()===e.getMonth() && s.getFullYear()===e.getFullYear()) return `${mon(s)} ${day(s)}\u2013${day(e)}`;
-  return `${mon(s)} ${day(s)} \u2013 ${mon(e)} ${day(e)}`;
+  const yr  = d => d.getFullYear();
+  if (!e || s.toDateString()===e.toDateString()) return `${mon(s)} ${day(s)}, ${yr(s)}`;
+  if (s.getMonth()===e.getMonth() && s.getFullYear()===e.getFullYear()) return `${mon(s)} ${day(s)}\u2013${day(e)}, ${yr(s)}`;
+  if (s.getFullYear()===e.getFullYear()) return `${mon(s)} ${day(s)} \u2013 ${mon(e)} ${day(e)}, ${yr(s)}`;
+  return `${mon(s)} ${day(s)}, ${yr(s)} \u2013 ${mon(e)} ${day(e)}, ${yr(e)}`;
 }
 
 function esc(s) {
