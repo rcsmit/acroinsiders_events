@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Save on Acro Festivals &amp; Retreats – AcroInsiders</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Corben:wght@400;700&family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --p1: #f19072; --p2: #12807a; --p3: #3d3d3e; --p4: #5c5c5c;
+    --p5: #bbbdbf; --p6: #d7dbde; --p7: #fcdacf; --p8: #fef6f4; --p9: #ffffff;
+    --font-body: 'Josefin Sans', sans-serif;
+    --font-heading: 'Corben', cursive;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); background: var(--p9); color: var(--p4); line-height: 1.6; padding: 1.5rem 1rem 2rem; }
+
+  .deals { max-width: 1000px; margin: 0 auto; }
+
+  /* Matches the site's h2.wp-block-heading.has-text-align-center above each deals section */
+  .deals-title {
+    font-family: 'Josefin Sans', sans-serif; font-weight: normal; text-align: center;
+    color: var(--p3); font-size: 2rem; line-height: 1.5; margin-bottom: 1.6rem;
+  }
+
+  /* Highlighted cards - reproduces the 3-column Kadence row: white box,
+     3px dotted --p7 border on all sides, 15px padding, hr divider + heading centered inside */
+  .deals-highlight {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .deal-card {
+    background: var(--p9); border: 3px dotted var(--p7);
+    padding: 15px; text-align: center; display: flex; flex-direction: column;
+  }
+  .deal-card .kt-divider {
+    border: none; border-top: 2px solid var(--p3); width: 100%; margin-bottom: .9rem;
+  }
+  .deal-card h3 {
+    font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--p3);
+    margin-bottom: .5rem; line-height: 1.3;
+  }
+  .deal-meta { font-size: 14px; color: var(--p4); margin-bottom: .5rem; }
+  .deal-meta .deal-date { display: block; }
+  .deal-meta .deal-country { display: block; }
+  .deal-code { font-size: 14px; color: var(--p4); margin-bottom: 1rem; flex: 1; }
+  .deal-code b { color: var(--p3); }
+  /* Matches the site's default Kadence button: orange bg, teal on hover, white text, pill shape */
+  .deal-btn {
+    display: inline-block; background: var(--p1); color: #fff; text-decoration: none;
+    font-size: 14px; font-weight: 600; padding: 10px 22px; border-radius: 50px;
+    transition: background .15s; align-self: center;
+  }
+  .deal-btn:hover { background: var(--p2); }
+
+  /* Table of remaining deals - reproduces wp-block-table.has-fixed-layout:
+     all cells bordered, header row solid rule beneath */
+  .deals-table-wrap { overflow-x: auto; }
+  table.deals-table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+  table.deals-table th, table.deals-table td {
+    padding: 10px; text-align: center; border: 1px solid var(--p6); vertical-align: middle; word-break: break-word;
+  }
+  table.deals-table thead { border-bottom: 3px solid var(--p3); }
+  table.deals-table th {
+    color: var(--p3); font-weight: 700;
+  }
+  table.deals-table td.deal-name { font-weight: 600; color: var(--p3); }
+  table.deals-table td.deal-date { white-space: nowrap; }
+  table.deals-table a.deal-link {
+    color: var(--p3); font-weight: 700; text-decoration: underline;
+  }
+  table.deals-table a.deal-link:hover { color: var(--p1); }
+
+  .deals-loading, .deals-empty {
+    text-align: center; padding: 1.5rem 0; color: var(--p5); font-size: 13px;
+  }
+  .deals-spinner {
+    display: inline-block; width: 16px; height: 16px; border: 2px solid var(--p6);
+    border-top-color: var(--p2); border-radius: 50%; animation: spin .7s linear infinite;
+    vertical-align: middle; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 700px) {
+    .deals-highlight { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    table.deals-table { font-size: 11.5px; }
+    table.deals-table th, table.deals-table td { padding: 7px 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="deals">
+
+  <!-- <h2 class="deals-title">Save on Acro Festivals &amp; Retreats</h2> -->
+
+  <div class="deals-highlight" id="highlight-cards">
+    <div class="deals-loading"><span class="deals-spinner"></span>Loading deals…</div>
+  </div>
+
+  <div class="deals-table-wrap">
+    <table class="deals-table" id="deals-table" style="display:none;">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Event Name</th>
+          <th>Location</th>
+          <th>Code</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody id="deals-table-body"></tbody>
+    </table>
+    <div class="deals-empty" id="deals-table-empty" style="display:none;">No additional deals right now.</div>
+  </div>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   CONFIG
+   ════════════════════════════════════════════════ */
+const version = "20260711174743";
+
+const CONFIG = {
+  SHEET_ID:      '132gCPu46DkXTJk1Yy5RmuKcijMBm7_PPqQjRm_7AbG4',
+  SHEET_TAB:     'data',
+  WORKER:        'https://tiny-recipe-c86a.be-nomadicated.workers.dev/events',
+  COL_NAME:      'EVENT NAME',
+  COL_START:     'EVENT START DATE',
+  COL_END:       'EVENT END DATE',
+  COL_CITY:   'CITY',
+  COL_COUNTRY:   'COUNTRY',
+  COL_SHOW:      'SHOW_INSIDERS_PAGE',
+  COL_HIGHLIGHT: 'SHOW_INSIDERS_PAGE_HIGHLIGHTED',
+  COL_CODE:      'INSIDER_CODE',
+  COL_LINK:      'INSIDER_LINK',
+  HIGHLIGHT_COUNT: 3,
+  BUTTON_LABEL:  'Get Tickets',
+};
+
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+
+const TRUE_VALS = ['yes','1','true','x','\u2713'];
+
+/* ════════════════════════════════════════════════
+   HELPERS
+   ════════════════════════════════════════════════ */
+function isTrue(val) {
+  return TRUE_VALS.includes(String(val||'').toLowerCase().trim());
+}
+
+function boldFirstWord(s) {
+  const str = esc(s);
+  const i = str.indexOf(' ');
+  return i === -1 ? `<b>${str}</b>` : `<b>${str.slice(0, i)}</b>${str.slice(i)}`;
+}
+
+function parseDate(str) {
+  if (!str || !str.trim()) return null;
+  const iso = str.trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (iso) return new Date(+iso[1], +iso[2]-1, +iso[3]);
+  const us = str.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (us)  return new Date(+us[3], +us[1]-1, +us[2]);
+  const d = new Date(str); return isNaN(d) ? null : d;
+}
+
+function fmtDate(row) {
+  const s = parseDate(row[CONFIG.COL_START]);
+  const e = parseDate(row[CONFIG.COL_END]);
+  if (!s) return '';
+  const day = d => d.getDate();
+  const mon = d => MONTHS[d.getMonth()].slice(0,3);
+  if (!e || s.toDateString()===e.toDateString()) return `${mon(s)} ${day(s)}`;
+  if (s.getMonth()===e.getMonth() && s.getFullYear()===e.getFullYear()) return `${mon(s)} ${day(s)}\u2013${day(e)}`;
+  return `${mon(s)} ${day(s)} \u2013 ${mon(e)} ${day(e)}`;
+}
+
+function esc(s) {
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ════════════════════════════════════════════════
+   CSV PARSER (same as newsletter.html)
+   ════════════════════════════════════════════════ */
+function parseCSV(csv) {
+  const text = csv.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  const lines=[]; let field='',row=[],inQ=false;
+  for (let i=0;i<text.length;i++) {
+    const ch=text[i];
+    if (inQ) {
+      if (ch==='"'&&text[i+1]==='"'){field+='"';i++;}
+      else if(ch==='"'){inQ=false;}
+      else{field+=ch;}
+    } else {
+      if(ch==='"'){inQ=true;}
+      else if(ch===','){row.push(field);field='';}
+      else if(ch==='\n'){row.push(field);field='';if(row.some(Boolean))lines.push(row);row=[];}
+      else{field+=ch;}
+    }
+  }
+  if(field||row.length){row.push(field);if(row.some(Boolean))lines.push(row);}
+  if(lines.length<2)return[];
+  const headers=lines[0].map(h=>h.trim());
+  return lines.slice(1).map(cols=>{const obj={};headers.forEach((h,i)=>{obj[h]=(cols[i]||'').trim();});return obj;});
+}
+
+/* ════════════════════════════════════════════════
+   FETCH (same strategy as newsletter.html: worker first, CSV fallback)
+   ════════════════════════════════════════════════ */
+async function fetchRows() {
+  try {
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),5000);
+    const res=await fetch(CONFIG.WORKER,{signal:ctrl.signal});
+    clearTimeout(tid);
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const json=await res.json();
+    if(json.rows&&json.rows.length)return json.rows;
+    throw new Error('empty');
+  } catch(e){/*fall through*/}
+  const url=`https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_TAB)}`;
+  const res=await fetch(url);
+  if(!res.ok)throw new Error(`CSV HTTP ${res.status}`);
+  const rows=parseCSV(await res.text());
+  if(!rows.length)throw new Error('no rows');
+  return rows;
+}
+
+/* ════════════════════════════════════════════════
+   SELECTION LOGIC
+   ════════════════════════════════════════════════ */
+function selectDeals(allRows) {
+  const now   = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // Rows eligible for the insider deals page, upcoming only, sorted by start date
+  const eligible = allRows
+    .filter(row => isTrue(row[CONFIG.COL_SHOW]))
+    .filter(row => {
+      const s = parseDate(row[CONFIG.COL_START]);
+      const e = parseDate(row[CONFIG.COL_END]) || s;
+      return !e || e >= today; // keep rows without a parseable end date rather than hide them
+    })
+    .sort((a,b) => (parseDate(a[CONFIG.COL_START])||0) - (parseDate(b[CONFIG.COL_START])||0));
+
+  // Determine highlighted rows via SHOW_INSIDERS_PAGE_HIGHLIGHTED
+  const hasHighlightCol = eligible.some(row => CONFIG.COL_HIGHLIGHT in row);
+  let highlighted = hasHighlightCol
+    ? eligible.filter(row => isTrue(row[CONFIG.COL_HIGHLIGHT])).slice(0, CONFIG.HIGHLIGHT_COUNT)
+    : [];
+
+  // Fallback: no column, or none flagged true -> first N eligible rows
+  if (!highlighted.length) {
+    highlighted = eligible.slice(0, CONFIG.HIGHLIGHT_COUNT);
+  }
+
+  const highlightedSet = new Set(highlighted);
+  const rest = eligible.filter(row => !highlightedSet.has(row));
+
+  return { highlighted, rest };
+}
+
+/* ════════════════════════════════════════════════
+   RENDER
+   ════════════════════════════════════════════════ */
+function renderHighlightCard(row) {
+  const name    = esc((row[CONFIG.COL_NAME]||'').trim() || '(unnamed)');
+  const city = esc((row[CONFIG.COL_CITY]||'').trim());
+  const country = esc((row[CONFIG.COL_COUNTRY]||'').trim());
+  const dr      = esc(fmtDate(row));
+  const code    = (row[CONFIG.COL_CODE]||'').trim();
+  const link    = (row[CONFIG.COL_LINK]||'').trim();
+
+  return `<div class="deal-card">
+    <hr class="kt-divider">
+    <h3>${name}</h3>
+    <div class="deal-meta">
+      ${dr ? `${dr}<br>` : ''}
+      ${country ? `Country: ${country}${city ? ' (' + city + ')' : ''}<br>` : ''}
+    </div>
+   
+    ${code ? `<div class="deal-code">🏷 ${boldFirstWord(code)}</div>` : ''}
+    ${link ? `<a class="deal-btn" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(CONFIG.BUTTON_LABEL)}</a>` : ''}
+  </div>`;
+}
+
+function renderTableRow(row) {
+  const name    = esc((row[CONFIG.COL_NAME]||'').trim() || '(unnamed)');
+  const city = esc((row[CONFIG.COL_CITY]||'').trim());
+  const country = esc((row[CONFIG.COL_COUNTRY]||'').trim());
+  const dr      = esc(fmtDate(row));
+  const code    = esc((row[CONFIG.COL_CODE]||'').trim());
+  const link    = (row[CONFIG.COL_LINK]||'').trim();
+
+  return `<tr>
+    <td class="deal-date">${dr}</td>
+    <td class="deal-name">${name}</td>
+    <td>${[city, country].filter(Boolean).join(', ')}</td>
+    <td>
+      ${code ? `<div class="deal-code">🏷 ${boldFirstWord(code)}</div>` : ''}
+      </td>
+    <td>${link ? `<a class="deal-link" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(CONFIG.BUTTON_LABEL)}</a>` : ''}</td>
+  </tr>`;
+}
+
+function render(allRows) {
+  const { highlighted, rest } = selectDeals(allRows);
+
+  const cardsEl = document.getElementById('highlight-cards');
+  if (highlighted.length) {
+    cardsEl.innerHTML = highlighted.map(renderHighlightCard).join('');
+  } else {
+    cardsEl.innerHTML = '<div class="deals-empty">No deals available right now.</div>';
+  }
+
+  const tableEl      = document.getElementById('deals-table');
+  const tableBodyEl  = document.getElementById('deals-table-body');
+  const tableEmptyEl = document.getElementById('deals-table-empty');
+  if (rest.length) {
+    tableBodyEl.innerHTML = rest.map(renderTableRow).join('');
+    tableEl.style.display = '';
+    tableEmptyEl.style.display = 'none';
+  } else {
+    tableEl.style.display = 'none';
+    tableEmptyEl.style.display = '';
+  }
+}
+
+/* ════════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════════ */
+async function init() {
+  try {
+    const rows = await fetchRows();
+    render(rows);
+  } catch (err) {
+    console.error('Insider Deals load error:', err);
+    document.getElementById('highlight-cards').innerHTML =
+      '<div class="deals-empty">Could not load deals. Please try again later.</div>';
+  }
+  setTimeout(() => { if (window.parentIFrame) window.parentIFrame.size(); }, 1000);
+  setTimeout(() => { if (window.parentIFrame) window.parentIFrame.size(); }, 3000);
+}
+
+if (typeof main === 'undefined') {
+  function main() { init(); }
+}
+main();
+</script>
+</body>
+</html>
