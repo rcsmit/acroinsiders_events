@@ -109,7 +109,6 @@
         <tr>
           <th>Date</th>
           <th>Event Name</th>
-          <th>Location</th>
           <th>Code</th>
           <th>Link</th>
         </tr>
@@ -139,7 +138,8 @@ const CONFIG = {
   COL_SHOW:      'SHOW_INSIDERS_PAGE',
   COL_HIGHLIGHT: 'SHOW_INSIDERS_PAGE_HIGHLIGHTED',
   COL_CODE:      'INSIDER_CODE',
-  COL_LINK:      'INSIDER_LINK',
+  // COL_LINK:      'INSIDER_LINK',
+  COL_LINK:      'URL',
   HIGHLIGHT_COUNT: 3,
   BUTTON_LABEL:  'Get Tickets',
 };
@@ -303,8 +303,8 @@ function renderTableRow(row) {
 
   return `<tr>
     <td class="deal-date">${dr}</td>
-    <td class="deal-name">${name}</td>
-    <td>${[city, country].filter(Boolean).join(', ')}</td>
+    <td class="deal-name"><b>${name}</b><br>
+    ${[city, country].filter(Boolean).join(', ')}</td>
     <td>
       ${code ? `<div class="deal-code">🏷 ${boldFirstWord(code)}</div>` : ''}
       </td>
